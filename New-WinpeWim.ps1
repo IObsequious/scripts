@@ -3,14 +3,14 @@
     [CmdletBinding()]
     param
     (
-        [System.String] $WorkingDirectory  
+        [System.String] $WorkingDirectory
     )
 
-    $null = md "$WorkingDirectory\fwfiles"
-    $null = md "$WorkingDirectory\scratch"
-    $null = md "$WorkingDirectory\logs"
-    $null = md "$WorkingDirectory\mount"
-    $null = md "$WorkingDirectory\media\sources"
+    $null = New-Item -Directory -Path "$WorkingDirectory\fwfiles"
+    $null = New-Item -Directory -Path "$WorkingDirectory\scratch"
+    $null = New-Item -Directory -Path "$WorkingDirectory\logs"
+    $null = New-Item -Directory -Path "$WorkingDirectory\mount"
+    $null = New-Item -Directory -Path "$WorkingDirectory\media\sources"
 
     $Verbose = $MyInvocation.BoundParameters.ContainsKey('Verbose')
     $Confirm = $MyInvocation.BoundParameters.ContainsKey('Confirm')
@@ -34,7 +34,7 @@
 
 
     Copy-Item -Path $WinPESourcePath -Destination $WinPEDestinationPath -Verbose:$Verbose
-    
+
     $MediaDirectory = "$WorkingDirectory\media"
     $SourcesDirectory = "$MediaDirectory\source"
     $FWFilesDirectory = "$WorkingDirectory\fwfiles"
@@ -43,7 +43,7 @@
     $ScratchDirectory = "$WorkingDirectory\scratch"
     $BootWimPath = "$SourcesDirectory\boot.wim"
 
-   
+
     $LogFile = "$LogDirectory\winpe_builder_dism_log.log"
     $PackageDirectory = "$WinPERoot\amd64\WinPE_OCs"
     $CopyPEScript = "$WinPERoot\copype.cmd"
@@ -59,9 +59,9 @@
     Copy-Item -Path $EFIRoot -Recurse -Destination $MediaDirectory -Verbose:$Verbose
     Copy-Item -Path "$MediaRoot\bootmgr" -Destination "$MediaDirectory\bootmgr" -Verbose:$Verbose
     Copy-Item -Path "$MediaRoot\bootmgr.efi" -Destination "$MediaDirectory\bootmgr.efi" -Verbose:$Verbose
-    
 
-    Mount-WindowsImage  -Verbose:$Verbose -LogPath $LogFile -ScratchDirectory $ScratchDirectory -ImagePath $WinPEDestinationPath -Index 1 -Path $MountDirectory 
+
+    Mount-WindowsImage  -Verbose:$Verbose -LogPath $LogFile -ScratchDirectory $ScratchDirectory -ImagePath $WinPEDestinationPath -Index 1 -Path $MountDirectory
 
     Add-WindowsPackage -Verbose:$Verbose -LogPath $LogFile -ScratchDirectory $ScratchDirectory -Path $MountDirectory -PackagePath "$PackageDirectory\WinPE-WMI.cab"
     Add-WindowsPackage -Verbose:$Verbose -LogPath $LogFile -ScratchDirectory $ScratchDirectory -Path $MountDirectory -PackagePath "$PackageDirectory\en-us\WinPE-WMI_en-us.cab"
@@ -79,7 +79,3 @@
     Dismount-WindowsImage -LogPath $LogFile -Verbose:$Verbose -ScratchDirectory $ScratchDirectory -Path $MountDirectory -Save
 
 }
-
-Remove-Item -Path "C:\WinPEx64" -Recurse
-
-New-WinpeWim -WorkingDirectory "C:\WinPEx64" -Verbose
