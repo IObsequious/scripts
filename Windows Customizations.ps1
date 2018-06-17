@@ -4,6 +4,16 @@
 
 #>
 
+Write-Host "Checking for elevation... " -NoNewline
+$CurrentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
+if (($CurrentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) -eq $false)
+{
+	$ArgumentList = "-noprofile -noexit -file `"{0}`""
+	Write-Host "elevating"
+	Start-Process powershell.exe -Verb RunAs -ArgumentList ($ArgumentList -f ($myinvocation.MyCommand.Definition))
+	Exit
+}
+
 
 # Show seconds when displaying time
 Set-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name 'ShowSecondsInSystemClock' -Value 1 -Force -Verbose
