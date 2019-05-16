@@ -2,8 +2,31 @@ $Directory = "${env:ProgramFiles(x86)}\Microsoft SQL Server\140\Tools\Binn\Manag
 
 $File = [System.IO.Path]::Combine($Directory, 'ssms.pkgundef')
 
-$Content = [System.IO.File]::ReadAllText($File)
+$Lines = [System.IO.File]::ReadAllLines($File)
 
-$Content = [Regex]::Replace($Content, '.*\[$RootKey$\\Themes\\{1ded0138-47ce-435e-84ef-9ec1f439b749}\]', '//[$RootKey$\Themes\{1ded0138-47ce-435e-84ef-9ec1f439b749}]')
+$NewLines = @()
 
-Set-Content -Path $File -Value $Content -Force -Verbose
+$i = 0;
+$l = 0
+
+$Lines | ForEach-Object -Process { 
+    $Line = $_
+    
+    $i++
+
+    if ($Line -eq '// Remove Dark theme')
+    {
+        $l = $i + 1
+    }
+    
+    
+    if ($i -eq $l)
+    {
+        $Line = "//" + $Line
+    }
+    
+    $NewLines += $Line
+ }
+ 
+
+Set-Content -Path $File -Value $NewLines -Force -Verbose
